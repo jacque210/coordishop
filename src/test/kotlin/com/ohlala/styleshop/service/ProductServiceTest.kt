@@ -4,6 +4,8 @@ import com.ohlala.styleshop.model.entity.Category
 import com.ohlala.styleshop.model.entity.Product
 import com.ohlala.styleshop.repository.CategoryRepository
 import com.ohlala.styleshop.repository.ProductRepository
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.ExpectSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
@@ -27,8 +29,7 @@ class ProductServiceTest : ExpectSpec(
       clearAllMocks()
     }
 
-    context("findMinimumPriceProducts TEST") {
-
+    context("getMinimumPriceProducts TEST") {
       expect("카테고리 별 최저가격 브랜드와 상품 가격, 총액을 조회 - 총액과 리스트 정보를 확인한다.") {
         every {
           categoryRepository.findAll()
@@ -89,7 +90,72 @@ class ProductServiceTest : ExpectSpec(
         result.productList.size.shouldBe(0)
         result.totalAmount.shouldBe(0)
       }
+    }
 
+    context("getMinimumPriceBrandInfo TEST") {
+      every { productRepository.findAllByBrand(any()) } returns listOf(
+        Product(1, Category(1, "상의"), "A", 10000),
+        Product(2, Category(2, "아우터"), "A", 20000)
+      )
+
+      every { productRepository.findAllByBrand("A") } returns listOf(
+        Product(1, Category(1, "상의"), "A", 1000),
+        Product(2, Category(2, "아우터"), "A", 2000)
+      )
+      every { productRepository.findAllByBrand("B") } returns listOf(
+        Product(3, Category(1, "상의"), "B", 2000),
+        Product(4, Category(2, "아우터"), "B", 3000)
+      )
+      every { productRepository.findAllByBrand("C") } returns listOf(
+        Product(5, Category(1, "상의"), "C", 3000),
+        Product(6, Category(2, "아우터"), "C", 4000)
+      )
+
+      expect("단일 브랜드로 모든 카테고리 상품을 구매할 때 최저가격에 판매하는 브랜드와 카테고리의 상품가격, 총액을 조회") {
+        // when
+        val result = productService.getMinimumPriceBrandInfo()
+
+        // then
+        result.minPriceInfo.brand.shouldBe("A")
+        result.minPriceInfo.totalAmount.shouldBe(3000)
+      }
+
+      expect("브랜드에 매핑되는 상품이 조회되지 않으면 에러가 발생한다.") {
+        // given
+        every { productRepository.findAllByBrand("A") } returns emptyList()
+
+        // then
+        shouldThrowAny { productService.getMinimumPriceBrandInfo() }
+      }
+    }
+
+    context("getMinMaxPriceProductInfo TEST") {
+      //given
+      every { categoryRepository.findByName("상의") } returns Category(1, "상의")
+      every { productRepository.findAllByCategoryId(1) } returns listOf(
+        Product(1, Category(1, "상의"), "A", 1000),
+        Product(2, Category(1, "상의"), "B", 2000),
+        Product(3, Category(1, "상의"), "C", 3000)
+      )
+
+      expect("카테고리 이름으로 최저, 최고 가격 브랜드와 상품 가격을 조회") {
+        // when
+        val result = productService.getMinMaxPriceProductInfo("상의")
+
+        // then
+        result.minPriceProduct.price.shouldBe(1000)
+        result.minPriceProduct.brand.shouldBe("A")
+
+        result.maxPriceProduct.price.shouldBe(3000)
+        result.maxPriceProduct.brand.shouldBe("C")
+      }
+
+      expect("카테고리가 조회되지 않으면 에러가 발생한다.") {
+        every { categoryRepository.findByName("치킨") } returns null
+
+        // when
+        shouldThrowAny { productService.getMinMaxPriceProductInfo("치킨") }
+      }
     }
   }
 )
