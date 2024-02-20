@@ -4,6 +4,8 @@ create table category
     id   bigint       not null auto_increment,
     name varchar(512) not null
 );
+create index "category_index"
+    on category (name);
 
 DROP TABLE IF EXISTS product;
 create table product

@@ -1,9 +1,13 @@
 package com.ohlala.styleshop.service
 
+import com.ohlala.styleshop.model.entity.Category
+import com.ohlala.styleshop.model.entity.Product
 import com.ohlala.styleshop.repository.CategoryRepository
 import com.ohlala.styleshop.repository.ProductRepository
 import com.ohlala.styleshop.service.response.BrandProduct
 import com.ohlala.styleshop.service.response.BrandProductResponse
+import com.ohlala.styleshop.service.response.MinMaxPriceProduct
+import com.ohlala.styleshop.service.response.MinMaxPriceProductInfoResponse
 import com.ohlala.styleshop.service.response.MinPriceBrandInfoResponse
 import com.ohlala.styleshop.service.response.MinPriceByCategoryProductResponse
 import com.ohlala.styleshop.service.response.MinPriceInfo
@@ -89,6 +93,35 @@ class ProductService(
         categoryList = categoryList,
         totalAmount = minPriceBrandTotalAmountPair.second,
       )
+    )
+  }
+
+  fun getMinMaxPriceProductInfo(categoryName: String): MinMaxPriceProductInfoResponse {
+    // 카테고리명으로 카테고리 아이디 조회
+    val category = categoryRepository.findByName(categoryName)
+      ?: run {
+        throw IllegalArgumentException("존재하지 않는 카테고리입니다.")
+      }
+
+    if (category.isEmpty()) {
+      throw IllegalArgumentException("존재하지 않는 카테고리입니다.")
+    }
+
+    // 카테고리 아이디 해당하는 최저 및 최고 상품가격 조회
+    val productList = productRepository.findAllByCategoryId(category.id)
+    val minPriceProduct = productList.minByOrNull { it.price } ?: Product(0, Category(), "", 0)
+    val maxPriceProduct = productList.maxByOrNull { it.price } ?: Product(0, Category(), "", 0)
+
+    return MinMaxPriceProductInfoResponse(
+      categoryName = category.name,
+      minPriceProduct = MinMaxPriceProduct(
+        brand = minPriceProduct.brand,
+        price = minPriceProduct.price,
+      ),
+      maxPriceProduct = MinMaxPriceProduct(
+        brand = maxPriceProduct.brand,
+        price = maxPriceProduct.price,
+      ),
     )
   }
 }

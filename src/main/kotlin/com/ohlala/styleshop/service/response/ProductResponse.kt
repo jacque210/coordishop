@@ -50,3 +50,21 @@ data class BrandProduct(
   val categoryName: String,
   val price: Int,
 )
+
+data class MinMaxPriceProductInfoResponse(
+  @JsonProperty("카테고리")
+  val categoryName: String,
+  @JsonProperty("최저가")
+  val minPriceProduct: MinMaxPriceProduct,
+  @JsonProperty("최고가")
+  val maxPriceProduct: MinMaxPriceProduct,
+)
+
+data class MinMaxPriceProduct(
+  @JsonProperty("브랜드")
+  val brand: String,
+
+  @JsonDeserialize(using = NumberFormatDeserializer::class)
+  @JsonProperty("가격")
+  val price: Int,
+)

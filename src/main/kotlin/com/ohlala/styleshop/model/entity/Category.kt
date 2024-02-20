@@ -26,4 +26,10 @@ data class Category(
       name = name,
     )
   }
+
+  constructor() : this(0, "")
+
+  fun isEmpty(): Boolean {
+    return this.id == 0L || this.name.isEmpty()
+  }
 }
