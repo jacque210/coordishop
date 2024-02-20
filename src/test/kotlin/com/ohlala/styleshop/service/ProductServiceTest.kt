@@ -1,10 +1,11 @@
 package com.ohlala.styleshop.service
 
+import com.ohlala.styleshop.model.entity.Brand
 import com.ohlala.styleshop.model.entity.Category
 import com.ohlala.styleshop.model.entity.Product
+import com.ohlala.styleshop.repository.BrandRepository
 import com.ohlala.styleshop.repository.CategoryRepository
 import com.ohlala.styleshop.repository.ProductRepository
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.ExpectSpec
 import io.kotest.matchers.shouldBe
@@ -17,11 +18,13 @@ class ProductServiceTest : ExpectSpec(
   {
     val productRepository = mockk<ProductRepository>(relaxed = true)
     val categoryRepository = mockk<CategoryRepository>(relaxed = true)
+    val brandRepository = mockk<BrandRepository>(relaxed = true)
 
     val productService = spyk<ProductService>(
       ProductService(
         productRepository = productRepository,
         categoryRepository = categoryRepository,
+        brandRepository = brandRepository,
       )
     )
 
@@ -51,22 +54,35 @@ class ProductServiceTest : ExpectSpec(
         )
 
         every { productRepository.findTopByCategoryIdOrderByPriceAsc(1) } returns Product(
-          id = 1,
           category = Category(1, "상의"),
           price = 1000,
           brand = "A"
         )
         every { productRepository.findTopByCategoryIdOrderByPriceAsc(2) } returns Product(
-          id = 2,
           category = Category(2, "아우터"),
           price = 2000,
           brand = "B"
         )
         every { productRepository.findTopByCategoryIdOrderByPriceAsc(3) } returns Product(
-          id = 3,
           category = Category(3, "바지"),
           price = 1500,
           brand = "C"
+        )
+
+        every {
+          brandRepository.findAll()
+        }.returns(
+          listOf(
+            Brand(
+              name = "A"
+            ),
+            Brand(
+              name = "B"
+            ),
+            Brand(
+              name = "C"
+            ),
+          )
         )
 
         // when
@@ -94,21 +110,21 @@ class ProductServiceTest : ExpectSpec(
 
     context("getMinimumPriceBrandInfo TEST") {
       every { productRepository.findAllByBrand(any()) } returns listOf(
-        Product(1, Category(1, "상의"), "A", 10000),
-        Product(2, Category(2, "아우터"), "A", 20000)
+        Product(Category(1, "상의"), "A", 10000),
+        Product(Category(2, "아우터"), "A", 20000)
       )
 
       every { productRepository.findAllByBrand("A") } returns listOf(
-        Product(1, Category(1, "상의"), "A", 1000),
-        Product(2, Category(2, "아우터"), "A", 2000)
+        Product(Category(1, "상의"), "A", 1000),
+        Product(Category(2, "아우터"), "A", 2000)
       )
       every { productRepository.findAllByBrand("B") } returns listOf(
-        Product(3, Category(1, "상의"), "B", 2000),
-        Product(4, Category(2, "아우터"), "B", 3000)
+        Product(Category(1, "상의"), "B", 2000),
+        Product(Category(2, "아우터"), "B", 3000)
       )
       every { productRepository.findAllByBrand("C") } returns listOf(
-        Product(5, Category(1, "상의"), "C", 3000),
-        Product(6, Category(2, "아우터"), "C", 4000)
+        Product(Category(1, "상의"), "C", 3000),
+        Product(Category(2, "아우터"), "C", 4000)
       )
 
       expect("단일 브랜드로 모든 카테고리 상품을 구매할 때 최저가격에 판매하는 브랜드와 카테고리의 상품가격, 총액을 조회") {
@@ -133,9 +149,9 @@ class ProductServiceTest : ExpectSpec(
       //given
       every { categoryRepository.findByName("상의") } returns Category(1, "상의")
       every { productRepository.findAllByCategoryId(1) } returns listOf(
-        Product(1, Category(1, "상의"), "A", 1000),
-        Product(2, Category(1, "상의"), "B", 2000),
-        Product(3, Category(1, "상의"), "C", 3000)
+        Product(Category(1, "상의"), "A", 1000),
+        Product(Category(1, "상의"), "B", 2000),
+        Product(Category(1, "상의"), "C", 3000)
       )
 
       expect("카테고리 이름으로 최저, 최고 가격 브랜드와 상품 가격을 조회") {

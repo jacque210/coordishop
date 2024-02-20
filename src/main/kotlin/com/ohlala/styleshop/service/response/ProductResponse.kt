@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.ohlala.styleshop.common.util.NumberFormatDeserializer
-import java.util.*
+import org.springframework.http.HttpStatus
 
 data class ProductResponse(
   val categoryId: Long,
@@ -67,4 +67,9 @@ data class MinMaxPriceProduct(
   @JsonDeserialize(using = NumberFormatDeserializer::class)
   @JsonProperty("가격")
   val price: Int,
+)
+
+data class ProductCudResponse(
+  val statusCode: HttpStatus,
+  val errorMessage: String?,
 )

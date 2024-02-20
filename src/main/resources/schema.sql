@@ -20,3 +20,12 @@ create index "PRODUCT_BRAND_index"
 
 create index "PRODUCT_CATEGORY_ID_index"
     on PRODUCT (CATEGORY_ID);
+
+DROP TABLE IF EXISTS brand;
+create table brand
+(
+    id   bigint       not null auto_increment,
+    name varchar(512) not null,
+    constraint brand_uk
+        unique (name)
+);

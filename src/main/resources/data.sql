@@ -86,3 +86,13 @@ INSERT INTO PUBLIC.PRODUCT (CATEGORY_ID, BRAND, PRICE) VALUES (8, 'F', 1900);
 INSERT INTO PUBLIC.PRODUCT (CATEGORY_ID, BRAND, PRICE) VALUES (8, 'G', 2000);
 INSERT INTO PUBLIC.PRODUCT (CATEGORY_ID, BRAND, PRICE) VALUES (8, 'H', 2000);
 INSERT INTO PUBLIC.PRODUCT (CATEGORY_ID, BRAND, PRICE) VALUES (8, 'I', 2400);
+
+insert into brand (name) values ('A');
+insert into brand (name) values ('B');
+insert into brand (name) values ('C');
+insert into brand (name) values ('D');
+insert into brand (name) values ('E');
+insert into brand (name) values ('F');
+insert into brand (name) values ('G');
+insert into brand (name) values ('H');
+insert into brand (name) values ('I');
