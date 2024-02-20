@@ -1,4 +1,4 @@
-package com.ohlala.styleshop.infra.category.repository
+package com.ohlala.styleshop.infra.repository
 
 import com.ohlala.styleshop.model.entity.Category
 import com.ohlala.styleshop.repository.CategoryQueryDslRepository

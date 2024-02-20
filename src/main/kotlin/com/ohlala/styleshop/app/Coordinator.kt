@@ -7,4 +7,7 @@ import org.springframework.stereotype.Service
 class Coordinator(
   private val categoryService: CategoryService
 ) {
+  fun getMinimumPriceByCategory(categoryId: Long): Int {
+    return 0
+  }
 }
